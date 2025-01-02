@@ -1,10 +1,9 @@
 from direct.showbase.ShowBase import ShowBase
 
-
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
-        self.model = self.loader.loadModel("models/environment")
+        self.model = self.loader.loadModel("models/panda")
         self.model.setScale(0.5)
         self.model.setPos(0, 0, 0)
         self.model.reparentTo(self.render)
