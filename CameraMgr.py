@@ -6,10 +6,10 @@ class MyApp(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
-        self.model = self.loader.loadModel("models/environment")
-        self.model.setScale(0.5)
-        self.model.setPos(300, 0, 0)
-        self.model.reparentTo(self.render)
+        #self.model = self.loader.loadModel("models/environment")
+        #self.model.setScale(0.5)
+        #self.model.setPos(300, 0, 0)
+        #self.model.reparentTo(self.render)
         self.taskMgr.add(self.move_camera, 'move_camera')
 
         self.is_fd = False
@@ -52,7 +52,7 @@ class MyApp(ShowBase):
 
     def move_camera(self, task):
 
-        speed=1
+        speed=0.5
 
         if self.is_fd:
             self.cam.setY(self.cam.getY() + speed)
@@ -73,25 +73,41 @@ class MyApp(ShowBase):
 
     def build_map(self, map_file):
         with open(map_file, "r") as file:
-            lines = file.readlines()
-        z = 0
-        for y, line  in enumerate(lines):
-            for x, num  in enumerate(line):
-                if num == '1':
-                    self.place_box(x, -y, z)
-                if num == '2':
-                    self.place_cube(x, -y, z)
+            content = file.read()
+        layers = content.split('---')
+        for z, layer in enumerate(layers):
+            lines = layer.strip().split('\n')
+            for y, line  in enumerate(lines):
+                for x, num  in enumerate(line):
+                    if num == '1':
+                        self.create_block(x, -y, z, '128x128/Grass/Grass_01-128x128.png')
+                    if num == '2':
+                        self.create_block(x, -y, z, '128x128/Grass/Grass_25-128x128.png')
+                    if num == '3':
+                        self.create_block(x, -y, z, '128x128/Bricks/Bricks_25-128x128.png')
+                    if num == '4':
+                        self.create_block(x, -y, z, '128x128/Roofs/Roofs_20-128x128.png')
+                    if num == 'p':
+                        self.create_panda(x, -y, z, '128x128/Roofs/Roofs_20-128x128.png')
 
 
-    def place_box(self,x,y,z):
-        cube = self.box1.copyTo(self.render)
-        cube.setPos(Vec3(x,y,z))
+    def create_block(self,x,y,z, texture_path):
+        cube =self.loader.loadModel('models/box')
+        cube.setPos(x, y, z)
+        cube.reparentTo(self.render)
+        texture = self.loader.loadTexture(texture_path)
+        cube.setTexture(texture, True)
 
-    def place_cube(self,x,y,z):
-        cube = self.box_2.copyTo(self.render)
-        cube.setPos(x,y,z)
+    def create_panda(self,x,y,z, texture_path=None):
+        cube =self.loader.loadModel('models/panda')
+        cube.setScale(0.1)
+        cube.setPos(x, y, z)
+        cube.setR(90)
+        cube.reparentTo(self.render)
 
 
 
 app=MyApp()
 app.run()
+
+
