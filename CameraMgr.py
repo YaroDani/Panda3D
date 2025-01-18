@@ -1,15 +1,14 @@
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import Vec3
+from direct.task.Task import sequence
+from panda3d.core import Vec3, CollisionNode, CollisionBox
+from pygame.draw import lines
 
 
 class MyApp(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
-        #self.model = self.loader.loadModel("models/environment")
-        #self.model.setScale(0.5)
-        #self.model.setPos(300, 0, 0)
-        #self.model.reparentTo(self.render)
+        self.cam.setPos(15,-4,54)
         self.taskMgr.add(self.move_camera, 'move_camera')
 
         self.is_fd = False
@@ -30,12 +29,6 @@ class MyApp(ShowBase):
 
         self.accept('a', lambda: setattr(self, 'is_left', True))
         self.accept('a-up', lambda: setattr(self, 'is_left', False))
-
-        self.accept('arrow_up', lambda: setattr(self, 'is_up', True))
-        self.accept('arrow_up-up', lambda: setattr(self, 'is_up', False))
-
-        self.accept('arrow_down', lambda: setattr(self, 'is_down', True))
-        self.accept('arrow_down-up', lambda: setattr(self, 'is_down', False))
 
         self.box1 = self.loader.loadModel('models/box')
         self.box1.reparentTo(self.render)
@@ -99,15 +92,22 @@ class MyApp(ShowBase):
         cube.setTexture(texture, True)
 
     def create_panda(self,x,y,z, texture_path=None):
-        cube =self.loader.loadModel('models/panda')
-        cube.setScale(0.1)
-        cube.setPos(x, y, z)
-        cube.setR(90)
-        cube.reparentTo(self.render)
+        
+        self.player.setPos(x, y, z)
+
+
 
 
 
 app=MyApp()
 app.run()
+print(app.move_player_d)
+
+
+
+
+
+
+
 
 
