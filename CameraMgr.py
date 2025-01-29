@@ -1,15 +1,14 @@
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import Vec3
+from direct.task.Task import sequence
+from panda3d.core import Vec3, CollisionNode, CollisionBox
+from pygame.draw import lines
 
 
 class MyApp(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
-        self.model = self.loader.loadModel("models/environment")
-        self.model.setScale(0.5)
-        self.model.setPos(300, 0, 0)
-        self.model.reparentTo(self.render)
+        self.cam.setPos(15,-4,54)
         self.taskMgr.add(self.move_camera, 'move_camera')
 
         self.is_fd = False
@@ -31,12 +30,6 @@ class MyApp(ShowBase):
         self.accept('a', lambda: setattr(self, 'is_left', True))
         self.accept('a-up', lambda: setattr(self, 'is_left', False))
 
-        self.accept('arrow_up', lambda: setattr(self, 'is_up', True))
-        self.accept('arrow_up-up', lambda: setattr(self, 'is_up', False))
-
-        self.accept('arrow_down', lambda: setattr(self, 'is_down', True))
-        self.accept('arrow_down-up', lambda: setattr(self, 'is_down', False))
-
         self.box1 = self.loader.loadModel('models/box')
         self.box1.reparentTo(self.render)
         self.texture = self.loader.loadTexture("128x128/Wood/Wood_19-128x128.png")
@@ -52,7 +45,7 @@ class MyApp(ShowBase):
 
     def move_camera(self, task):
 
-        speed=1
+        speed=0.5
 
         if self.is_fd:
             self.cam.setY(self.cam.getY() + speed)
@@ -73,25 +66,48 @@ class MyApp(ShowBase):
 
     def build_map(self, map_file):
         with open(map_file, "r") as file:
-            lines = file.readlines()
-        z = 0
-        for y, line  in enumerate(lines):
-            for x, num  in enumerate(line):
-                if num == '1':
-                    self.place_box(x, -y, z)
-                if num == '2':
-                    self.place_cube(x, -y, z)
+            content = file.read()
+        layers = content.split('---')
+        for z, layer in enumerate(layers):
+            lines = layer.strip().split('\n')
+            for y, line  in enumerate(lines):
+                for x, num  in enumerate(line):
+                    if num == '1':
+                        self.create_block(x, -y, z, '128x128/Grass/Grass_01-128x128.png')
+                    if num == '2':
+                        self.create_block(x, -y, z, '128x128/Grass/Grass_25-128x128.png')
+                    if num == '3':
+                        self.create_block(x, -y, z, '128x128/Bricks/Bricks_25-128x128.png')
+                    if num == '4':
+                        self.create_block(x, -y, z, '128x128/Roofs/Roofs_20-128x128.png')
+                    if num == 'p':
+                        self.create_panda(x, -y, z, '128x128/Roofs/Roofs_20-128x128.png')
 
 
-    def place_box(self,x,y,z):
-        cube = self.box1.copyTo(self.render)
-        cube.setPos(Vec3(x,y,z))
+    def create_block(self,x,y,z, texture_path):
+        cube =self.loader.loadModel('models/box')
+        cube.setPos(x, y, z)
+        cube.reparentTo(self.render)
+        texture = self.loader.loadTexture(texture_path)
+        cube.setTexture(texture, True)
 
-    def place_cube(self,x,y,z):
-        cube = self.box_2.copyTo(self.render)
-        cube.setPos(x,y,z)
+    def create_panda(self,x,y,z, texture_path=None):
+        
+        self.player.setPos(x, y, z)
+
+
 
 
 
 app=MyApp()
 app.run()
+print(app.move_player_d)
+
+
+
+
+
+
+
+
+
