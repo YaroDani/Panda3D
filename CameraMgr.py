@@ -3,12 +3,14 @@ from direct.task.Task import sequence
 from panda3d.core import Vec3, CollisionNode, CollisionBox
 from pygame.draw import lines
 
+cn = CollisionNode('model_collision')
+
 
 class MyApp(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
-        self.cam.setPos(15,-4,54)
+        self.cam.setPos(10, -4, 35)
         self.taskMgr.add(self.move_camera, 'move_camera')
 
         self.is_fd = False
@@ -18,11 +20,6 @@ class MyApp(ShowBase):
         self.is_up = False
         self.is_down = False
 
-        self.accept('w', lambda : setattr(self, 'is_fd', True))
-        self.accept('w-up', lambda : setattr(self, 'is_fd', False))
-
-        self.accept('s', lambda: setattr(self, 'is_bd', True))
-        self.accept('s-up', lambda: setattr(self, 'is_bd', False))
 
         self.accept('d', lambda: setattr(self, 'is_right', True))
         self.accept('d-up', lambda: setattr(self, 'is_right', False))
@@ -30,27 +27,32 @@ class MyApp(ShowBase):
         self.accept('a', lambda: setattr(self, 'is_left', True))
         self.accept('a-up', lambda: setattr(self, 'is_left', False))
 
-        self.box1 = self.loader.loadModel('models/box')
-        self.box1.reparentTo(self.render)
-        self.texture = self.loader.loadTexture("128x128/Wood/Wood_19-128x128.png")
-        self.box1.setTexture(self.texture)
+        self.build_map('map2.txt')
+        self.move_player_d = {
+            'fd': False,
+            'bd': False,
+            'left': False,
+            'right': False,
+            'is_jump': False
+        }
+        self.accept('arrow_up', lambda: self.update_move('fd', True))
+        self.accept('arrow_up-up', lambda: self.update_move('fd', False))
 
+        self.taskMgr.add(self.move_player)
         
+        self.show_c()
 
-        self.box_2 = self.loader.loadModel('models/box')
-        self.box_2.setTexture(self.texture)
-        self.box_2.reparentTo(self.render)
-        self.build_map('map.txt')
+    def show_c(self):
+        self.player_coll.show()
+        self.player_coll.setColor(1, 1, 0, 1)
+        self.player_coll.setRenderModeWireframe()
 
+    def update_move(self, key, value):
+        if key in self.move_player_d:
+            self.move_player_d[key] = value
 
     def move_camera(self, task):
-
-        speed=0.5
-
-        if self.is_fd:
-            self.cam.setY(self.cam.getY() + speed)
-        if self.is_bd:
-            self.cam.setY(self.cam.getY() - speed)
+        speed = 0.2
 
         if self.is_left:
             self.cam.setX(self.cam.getX() - speed)
@@ -70,8 +72,8 @@ class MyApp(ShowBase):
         layers = content.split('---')
         for z, layer in enumerate(layers):
             lines = layer.strip().split('\n')
-            for y, line  in enumerate(lines):
-                for x, num  in enumerate(line):
+            for y, line in enumerate(lines):
+                for x, num in enumerate(line):
                     if num == '1':
                         self.create_block(x, -y, z, '128x128/Grass/Grass_01-128x128.png')
                     if num == '2':
@@ -81,33 +83,56 @@ class MyApp(ShowBase):
                     if num == '4':
                         self.create_block(x, -y, z, '128x128/Roofs/Roofs_20-128x128.png')
                     if num == 'p':
-                        self.create_panda(x, -y, z, '128x128/Roofs/Roofs_20-128x128.png')
+                        self.create_panda(x, -y, z,)
 
-
-    def create_block(self,x,y,z, texture_path):
-        cube =self.loader.loadModel('models/box')
-        cube.setPos(x, y, z)
+    def create_block(self, x, y, z, texture_path):
+        cube = self.loader.loadModel('models/box')
+        cube.setPos((x, y, z))
         cube.reparentTo(self.render)
         texture = self.loader.loadTexture(texture_path)
         cube.setTexture(texture, True)
 
-    def create_panda(self,x,y,z, texture_path=None):
-        
+        self.coll_node.addSolid(CollisionBox((x, y, z), 1, 1, 1))
+        # показ колізій
+        coll_node = CollisionNode('wall_coll')
+        coll_node.addSolid(CollisionBox((0, 0, 0), 1, 1, 1))
+
+        coll_np = cube.attachNewNode(coll_node)
+        coll_np.show()
+        coll_np.setRenderModeWireframe()
+        coll_np.setColor(1, 1, 0, 1)
+
+    def create_panda(self, x, y, z, texture_path=None):
         self.player.setPos(x, y, z)
 
+    def move_player(self, task):
+        speed = 0.15
+        rotation_speed = 1
+        moving = False
 
+        if self.mouseWatcherNode.is_button_down(KeyboardButton.left()):
+            self.player.setH(self.player.getH() + rotation_speed)
+            moving = True
+        if self.mouseWatcherNode.is_button_down(KeyboardButton.right()):
+            self.player.setH(self.player.getH() - rotation_speed)
+            moving = True
+        if self.mouseWatcherNode.is_button_down(KeyboardButton.up()):
+            self.player.setY(self.player, -speed)
+            moving = True
+        if self.mouseWatcherNode.is_button_down(KeyboardButton.down()):
+            self.player.setY(self.player, speed)
+            moving = True
 
+        if moving:
+            if not self.player.getCurrentAnim():
+                self.player.loop('walk')
+        else:
+            self.player.stop()
 
+        self.ct.traverse(self.render)
 
-app=MyApp()
+        return task.cont
+
+app = MyApp()
 app.run()
 print(app.move_player_d)
-
-
-
-
-
-
-
-
-
