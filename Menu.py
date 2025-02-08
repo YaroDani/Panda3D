@@ -1,7 +1,11 @@
 from direct.showbase.ShowBase import ShowBase
+from direct.task.Task import sequence
+from panda3d.core import Vec3, CollisionNode, CollisionBox, Point3, CollisionTraverser, CollisionHandlerPusher, \
+    CollisionSphere
+from panda3d.core import KeyboardButton
+from direct.actor.Actor import Actor
 from direct.gui.DirectGui import DirectButton, DirectFrame, DirectSlider, DirectLabel
 from panda3d.core import TextNode
-from CameraMgr import MyApp
 
 class MenuDemo(ShowBase):
     def __init__(self):

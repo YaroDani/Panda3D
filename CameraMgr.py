@@ -134,6 +134,7 @@ class MyApp(ShowBase):
 
         return task.cont
 
+
 app = MyApp()
 app.run()
 print(app.move_player_d)
