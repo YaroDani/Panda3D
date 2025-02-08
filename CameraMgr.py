@@ -50,7 +50,7 @@ class MyApp(ShowBase):
     def update_move(self, key, value):
         if key in self.move_player_d:
             self.move_player_d[key] = value
-
+    '''
     def move_camera(self, task):
         speed = 0.2
 
@@ -64,7 +64,7 @@ class MyApp(ShowBase):
         if self.is_down:
             self.cam.setZ(self.cam.getZ() - speed)
 
-        return task.cont
+        return task.cont'''
 
     def build_map(self, map_file):
         with open(map_file, "r") as file:
@@ -121,6 +121,7 @@ class MyApp(ShowBase):
             moving = True
         if self.mouseWatcherNode.is_button_down(KeyboardButton.down()):
             self.player.setY(self.player, speed)
+
             moving = True
 
         if moving:
