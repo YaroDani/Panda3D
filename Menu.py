@@ -15,33 +15,28 @@ class MenuDemo(ShowBase):
         self.menu_frame = DirectFrame(frameColor=(0, 0, 0, 0.7),  # Dark background
                                       frameSize=(-1, 1, -0.8, 0.8),
                                       pos=(0, 0, 0))
-
         # "Start" Button
         self.play_button = DirectButton(text="Start",
                                         scale=0.2,
                                         pos=(0, 0, 0.2),
                                         command=self.start_game)
-
         # "Exit" Button
         self.exit_button = DirectButton(text="Exit",
                                         scale=0.2,
                                         pos=(0, 0, -0.1),
                                         command=self.exit_game)
-
         # Volume label
         self.volume_label = DirectLabel(text="Volume",
                                         scale=0.06,
                                         pos=(0, 0, -0.2),
                                         text_fg=(1, 1, 1, 1),  # White text
                                         text_align=TextNode.ACenter)
-
         # Volume slider
         self.volume_slider = DirectSlider(range=(0, 1),
                                           value=0.5,
                                           pos=(0, 0, -0.3),
                                           scale=0.3,
                                           command=self.change_volume)
-
         try:
             self.sound = self.loader.loadSfx("china_town.mp3")
             self.sound.setLoop(True)
